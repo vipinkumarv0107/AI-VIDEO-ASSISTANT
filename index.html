@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Video Assistant</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">✦</div>
+        <div>
+          <h1>VideoMind</h1>
+          <span>AI Video Assistant</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="section-label">WORKSPACE</p>
+        <button class="nav-item active" id="newAnalysisBtn">
+          <span>＋</span> New Analysis
+        </button>
+        <button class="nav-item" id="healthBtn">
+          <span>●</span> API Status
+          <span class="status-dot" id="sideStatus"></span>
+        </button>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="mini-icon">AI</div>
+        <strong>Smart Analysis</strong>
+        <p>Transcribe, summarize and chat with your video using one AI workspace.</p>
+      </div>
+
+      <div class="sidebar-footer">
+        <span>FastAPI</span>
+        <span>•</span>
+        <span>v2.1</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">AI VIDEO INTELLIGENCE</p>
+          <h2>Turn videos into useful insights.</h2>
+          <p class="subtitle">Upload a video or paste a supported media URL to analyze it with AI.</p>
+        </div>
+        <div class="api-pill" id="apiPill">
+          <span class="status-dot"></span>
+          <span id="apiText">Checking API...</span>
+        </div>
+      </header>
+
+      <section class="workspace" id="uploadWorkspace">
+        <div class="source-tabs">
+          <button class="source-tab active" data-mode="file">Upload File</button>
+          <button class="source-tab" data-mode="url">Video URL</button>
+        </div>
+
+        <div class="source-panel" id="filePanel">
+          <div class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput" accept=".mp4,.mov,.avi,.mkv,.mp3,.wav,.m4a,.webm" hidden>
+            <div class="upload-icon">↑</div>
+            <h3>Drop your video here</h3>
+            <p>or click to browse from your computer</p>
+            <button class="browse-btn" id="browseBtn">Choose File</button>
+            <small>MP4, MOV, AVI, MKV, MP3, WAV, M4A, WEBM</small>
+          </div>
+          <div class="selected-file hidden" id="selectedFile">
+            <div class="file-symbol">▶</div>
+            <div class="file-info">
+              <strong id="fileName">video.mp4</strong>
+              <span id="fileSize">0 MB</span>
+            </div>
+            <button class="remove-btn" id="removeFile">×</button>
+          </div>
+        </div>
+
+        <div class="source-panel hidden" id="urlPanel">
+          <label for="urlInput">Media URL</label>
+          <div class="url-row">
+            <input id="urlInput" type="url" placeholder="https://www.youtube.com/watch?v=...">
+            <button class="paste-btn" id="pasteBtn">Paste</button>
+          </div>
+          <p class="hint">The backend uses yt-dlp through <code>process_input()</code> for online media.</p>
+        </div>
+
+        <div class="controls-row">
+          <div class="language-control">
+            <label for="languageSelect">Transcription language</label>
+            <select id="languageSelect">
+              <option value="english">English</option>
+              <option value="hinglish">Hinglish</option>
+            </select>
+          </div>
+          <button class="analyze-btn" id="analyzeBtn">
+            <span>✦</span> Analyze Video
+          </button>
+        </div>
+
+        <div class="progress-card hidden" id="progressCard">
+          <div class="progress-top">
+            <strong id="progressTitle">Analyzing your video...</strong>
+            <span id="progressPercent">Processing</span>
+          </div>
+          <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+          <div class="steps">
+            <span class="step active" id="step1">01 Processing</span>
+            <span class="step" id="step2">02 Transcription</span>
+            <span class="step" id="step3">03 AI Analysis</span>
+            <span class="step" id="step4">04 RAG</span>
+          </div>
+        </div>
+
+        <div class="error-box hidden" id="errorBox"></div>
+      </section>
+
+      <section class="results hidden" id="results">
+        <div class="result-header">
+          <div>
+            <p class="eyebrow">ANALYSIS COMPLETE</p>
+            <h2 id="resultTitle">Untitled Video</h2>
+            <span class="session-id" id="sessionId"></span>
+          </div>
+          <button class="secondary-btn" id="newBtn">＋ New Analysis</button>
+        </div>
+
+        <div class="summary-grid">
+          <article class="result-card summary-card">
+            <div class="card-heading"><span class="card-icon">✦</span><h3>Summary</h3></div>
+            <div class="content" id="summaryContent"></div>
+          </article>
+
+          <article class="result-card">
+            <div class="card-heading"><span class="card-icon">✓</span><h3>Action Items</h3></div>
+            <div class="content" id="actionsContent"></div>
+          </article>
+
+          <article class="result-card">
+            <div class="card-heading"><span class="card-icon">◆</span><h3>Key Decisions</h3></div>
+            <div class="content" id="decisionsContent"></div>
+          </article>
+
+          <article class="result-card">
+            <div class="card-heading"><span class="card-icon">?</span><h3>Open Questions</h3></div>
+            <div class="content" id="questionsContent"></div>
+          </article>
+        </div>
+
+        <article class="transcript-card">
+          <div class="card-heading transcript-heading">
+            <div>
+              <span class="card-icon">≡</span>
+              <h3>Transcript</h3>
+            </div>
+            <button class="copy-btn" id="copyTranscript">Copy</button>
+          </div>
+          <pre id="transcriptContent"></pre>
+        </article>
+
+        <article class="chat-card">
+          <div class="chat-header">
+            <div>
+              <p class="eyebrow">RAG ASSISTANT</p>
+              <h2>Ask anything about this video</h2>
+            </div>
+            <span class="ai-badge">Mistral + Chroma</span>
+          </div>
+
+          <div class="suggestions">
+            <button class="suggestion">What are the main points?</button>
+            <button class="suggestion">List the important decisions.</button>
+            <button class="suggestion">What should be done next?</button>
+          </div>
+
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-empty">
+              <div class="chat-orb">✦</div>
+              <p>Ask a question and I’ll search the transcript for the answer.</p>
+            </div>
+          </div>
+
+          <form class="chat-form" id="chatForm">
+            <input id="questionInput" type="text" placeholder="Ask a question about the video..." autocomplete="off">
+            <button type="submit" id="askBtn">Send ↑</button>
+          </form>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+</body>
+</html>

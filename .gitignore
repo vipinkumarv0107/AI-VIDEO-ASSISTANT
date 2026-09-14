@@ -1,0 +1,6 @@
+﻿.venv/
+__pycache__/
+.env
+downloades/
+*.part
+models/small.pt
